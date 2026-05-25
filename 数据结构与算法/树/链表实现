@@ -1,0 +1,27 @@
+class TreeNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+# 创建节点
+node10 = TreeNode(10)
+node5 = TreeNode(5)
+node15 = TreeNode(15)
+node3 = TreeNode(3)
+node7 = TreeNode(7)
+node20 = TreeNode(20)
+
+# 链接
+node10.left = node5
+node10.right = node15
+node5.left = node3
+node5.right = node7
+node15.left = None
+node15.right = node20
+
+
+        10
+       /  \
+      5    15
+     / \     \
+    3   7     20
