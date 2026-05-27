@@ -1,0 +1,21 @@
+#创建虚拟环境
+python3 -m venv venv
+source venv/bin/activate
+
+#安装fastmcp
+pip install fastmcp
+
+#创建MCP服务代码文件
+
+#启动MCP服务
+python mcp_server.py
+
+#转发端口
+保持服务运行，打开 VS Code 的 “端口” 视图（通常在远程资源管理器下方）
+点击 “添加端口”，输入 8000
+确认本地地址显示为 http://localhost:8000
+
+#（本地电脑）在 Cherry Studio 中配置 MCP
+类型：SSE
+URL：http://localhost:8000/sse
+保存后即可看到两个工具：get_token 和 get_server_time。
