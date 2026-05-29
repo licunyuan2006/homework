@@ -1,0 +1,180 @@
+class TreeNode:
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+
+class BST:
+    def __init__(self):
+        self.root = None
+
+    # ---------- 插入 ----------
+    def insert(self, key):
+        if self.root is None:
+            self.root = TreeNode(key)
+        else:
+            self._insert(self.root, key)
+
+    def _insert(self, node, key):
+        if key < node.key:
+            if node.left:
+                self._insert(node.left, key)
+            else:
+                node.left = TreeNode(key)
+        elif key > node.key:
+            if node.right:
+                self._insert(node.right, key)
+            else:
+                node.right = TreeNode(key)
+        # 重复值忽略
+
+    # ---------- 中序遍历 ----------
+    def inorder(self):
+        res = []
+        self._inorder(self.root, res)
+        return res
+
+    def _inorder(self, node, res):
+        if node:
+            self._inorder(node.left, res)
+            res.append(node.key)
+            self._inorder(node.right, res)
+
+    # ---------- 辅助：最大/最小 ----------
+    def _find_min(self, node):
+        while node.left:
+            node = node.left
+        return node
+
+    def _find_max(self, node):
+        while node.right:
+            node = node.right
+        return node
+
+    # ---------- 独立删除方法 ----------
+    def delete_with_predecessor(self, key):
+        """用中序前驱（左子树最大值）删除节点"""
+        self.root = self._delete(self.root, key, use_predecessor=True)
+
+    def delete_with_successor(self, key):
+        """用中序后继（右子树最小值）删除节点"""
+        self.root = self._delete(self.root, key, use_predecessor=False)
+
+    # 内部通用删除实现
+    def _delete(self, node, key, use_predecessor):
+        if node is None:
+            return None
+        if key < node.key:
+            node.left = self._delete(node.left, key, use_predecessor)
+        elif key > node.key:
+            node.right = self._delete(node.right, key, use_predecessor)
+        else:
+            # 找到要删除的节点
+            if node.left is None:
+                return node.right
+            if node.right is None:
+                return node.left
+            # 有两个孩子
+            if use_predecessor:
+                pred = self._find_max(node.left)
+                node.key = pred.key
+                node.left = self._delete(node.left, pred.key, use_predecessor)
+            else:
+                succ = self._find_min(node.right)
+                node.key = succ.key
+                node.right = self._delete(node.right, succ.key, use_predecessor)
+        return node
+
+    # ---------- 连续删除综合方法 ----------
+    def delete_sequence(self, keys, use_predecessor=True):
+        """
+        连续删除多个节点。
+        :param keys: 待删除的键列表（按顺序删除）
+        :param use_predecessor: True 表示所有删除都用前驱策略，False 都用后继策略；
+                                 也可以传入列表，为每个键指定策略（长度需一致）
+        """
+        if isinstance(use_predecessor, list):
+            # 为每个键单独指定策略
+            if len(use_predecessor) != len(keys):
+                raise ValueError("策略列表长度必须与键列表相同")
+            for key, pred in zip(keys, use_predecessor):
+                if pred:
+                    self.delete_with_predecessor(key)
+                else:
+                    self.delete_with_successor(key)
+        else:
+            # 统一策略
+            for key in keys:
+                if use_predecessor:
+                    self.delete_with_predecessor(key)
+                else:
+                    self.delete_with_successor(key)
+
+    # ---------- 简单直观的打印 ----------
+    def print_tree(self):
+        self._print_tree(self.root, 0, "Root: ")
+
+    def _print_tree(self, node, level, prefix):
+        if node is None:
+            return
+        print("  " * level + prefix + str(node.key))
+        if node.left or node.right:
+            if node.left:
+                self._print_tree(node.left, level + 1, "L--- ")
+            else:
+                print("  " * (level + 1) + "L--- None")
+            if node.right:
+                self._print_tree(node.right, level + 1, "R--- ")
+            else:
+                print("  " * (level + 1) + "R--- None")
+
+
+# ---------- 演示 ----------
+if __name__ == "__main__":
+    # 1. 构建原始树并打印
+    bst = BST()
+    for val in [50, 30, 70, 20, 40, 60, 80]:
+        bst.insert(val)
+    print("原始 BST（根节点 50）")
+    bst.print_tree()
+    print("中序遍历:", bst.inorder())
+    print("\n" + "="*40 + "\n")
+
+    # 2. 单独测试：用前驱删除根节点 50
+    bst_pre = BST()
+    for val in [50, 30, 70, 20, 40, 60, 80]:
+        bst_pre.insert(val)
+    bst_pre.delete_with_predecessor(50)
+    print("用 delete_with_predecessor(50) 删除根节点")
+    bst_pre.print_tree()
+    print("中序遍历:", bst_pre.inorder())
+    print("\n" + "="*40 + "\n")
+
+    # 3. 单独测试：用后继删除根节点 50
+    bst_succ = BST()
+    for val in [50, 30, 70, 20, 40, 60, 80]:
+        bst_succ.insert(val)
+    bst_succ.delete_with_successor(50)
+    print("用 delete_with_successor(50) 删除根节点")
+    bst_succ.print_tree()
+    print("中序遍历:", bst_succ.inorder())
+    print("\n" + "="*40 + "\n")
+
+    # 4. 连续删除多个节点（统一使用前驱策略）
+    bst_seq = BST()
+    for val in [50, 30, 70, 20, 40, 60, 80]:
+        bst_seq.insert(val)
+    print("连续删除 [70, 40]（统一使用前驱策略）")
+    bst_seq.delete_sequence([70, 40], use_predecessor=True)
+    bst_seq.print_tree()
+    print("中序遍历:", bst_seq.inorder())
+    print("\n" + "="*40 + "\n")
+
+    # 5. 连续删除并为每个节点指定不同策略
+    bst_mix = BST()
+    for val in [50, 30, 70, 20, 40, 60, 80]:
+        bst_mix.insert(val)
+    print("连续删除 [30, 60]，30用后继，60用前驱")
+    bst_mix.delete_sequence([30, 60], use_predecessor=[False, True])
+    bst_mix.print_tree()
+    print("中序遍历:", bst_mix.inorder())
