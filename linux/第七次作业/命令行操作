@@ -1,0 +1,54 @@
+wsl --install
+
+Dockerfile:
+# 使用官方 ollama 镜像作为基础
+FROM ollama/ollama:latest
+
+# 设置环境变量，让 ollama 监听所有网络接口
+ENV OLLAMA_HOST=0.0.0.0
+
+# 声明容器运行时监听的端口
+EXPOSE 11434
+
+# 容器启动时执行的命令
+CMD ["serve"]
+
+docker-compose.yml:
+version: '3.8'
+
+services:
+  ollama:
+    # 使用当前目录的 Dockerfile 来构建镜像
+    build: .
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      # 将容器内的模型文件夹挂载到当前目录，实现数据持久化
+      - ./ollama_data:/root/.ollama
+
+配置Docker Engine（加速拉取镜像）:
+{
+  "registry-mirrors": [
+    "https://docker.m.daocloud.io",
+    "https://docker.1ms.run",
+    "https://docker.xuanyuan.me",
+    "https://hub.crdz.gq",
+    "https://docker.unsee.tech",
+    "https://do.nark.eu.org",
+    "https://dc.j8.work",
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://docker.nju.edu.cn"
+  ],
+  "insecure-registries": [],
+  "debug": false,
+  "experimental": false
+}
+
+构建并启动服务
+docker-compose up -d --build
+
+下载并运行Qwen3模型
+docker exec -it ollama bash
+ollama pull qwen3:0.6b
