@@ -1,0 +1,55 @@
+import heapq
+
+class MedianFinder:
+    def __init__(self):
+        # 小顶堆：存放较大的一半元素，堆顶为这部分的最小值
+        self.min_heap = []
+        # 大顶堆：存放较小的一半元素，堆顶为这部分的最大值
+        # 通过存储负数来实现大顶堆
+        self.max_heap = []
+
+    def addNum(self, num: int) -> None:
+        # 先根据两个堆的长度决定插入策略
+        if len(self.min_heap) == len(self.max_heap):
+            # 当前元素个数为偶数，新元素应放入小顶堆
+            # 但为了保持大小关系，先放入大顶堆，再取出最大值放入小顶堆
+            heapq.heappush(self.max_heap, -num)
+            # 弹出大顶堆的最大值（即负数的最大值），转为正数后加入小顶堆
+            max_val = -heapq.heappop(self.max_heap)
+            heapq.heappush(self.min_heap, max_val)
+        else:
+            # 当前元素个数为奇数，小顶堆比大顶堆多一个，新元素应放入大顶堆
+            # 先放入小顶堆，再取出最小值放入大顶堆
+            heapq.heappush(self.min_heap, num)
+            min_val = heapq.heappop(self.min_heap)
+            heapq.heappush(self.max_heap, -min_val)
+
+    def findMedian(self) -> float:
+        if not self.min_heap:
+            return 0.0  # 未添加任何数字时，根据需求可返回0或抛出异常
+        if len(self.min_heap) > len(self.max_heap):
+            # 元素总数为奇数，中位数就是小顶堆的堆顶
+            return self.min_heap[0]
+        else:
+            # 元素总数为偶数，中位数为两个堆顶的平均值
+            return (self.min_heap[0] - self.max_heap[0]) / 2.0
+
+
+# 测试示例
+if __name__ == "__main__":
+    mf = MedianFinder()
+    mf.addNum(3)
+    print(f"addNum(3) -> 中位数: {mf.findMedian()}")   # 3
+    mf.addNum(1)
+    print(f"addNum(1) -> 中位数: {mf.findMedian()}")   # 2
+    mf.addNum(4)
+    print(f"addNum(4) -> 中位数: {mf.findMedian()}")   # 3
+    mf.addNum(1)
+    print(f"addNum(1) -> 中位数: {mf.findMedian()}")   # 2
+    mf.addNum(5)
+    print(f"addNum(5) -> 中位数: {mf.findMedian()}")   # 3
+
+    
+时间复杂度分析
+addNum(num)	O(log n)	每次插入最多执行两次堆操作（heapush 和 heappop），堆大小为 n，因此单次操作为 O(log n)。
+findMedian()	O(1)	直接返回堆顶元素或计算两个堆顶的平均值，不涉及堆的调整。
