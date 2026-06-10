@@ -1,0 +1,37 @@
+在本地VSCODE编辑文件然后上传到云服务器
+scp D://whack-a-mole.zip root@182.92.151.92:/root/
+
+SSH登录云服务器
+
+前置准备
+1、安装docker和docker-compose
+sudo apt update
+sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://mirrors.aliyun.com/docker-ce/linux/debian \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+docker --version
+docker compose version
+2、安装unzip
+apt install -y unzip 
+
+解压文件
+unzip whack-a-mole.zip -d whack-a-mole
+进入文件目录
+cd whack-a-mole
+
+构建并启动容器
+docker-compose up -d --build
+
+###安装docker过程和构建镜像过程都拉取了镜像，就没有具体说明了
+
+开放端口
+开放 3000 端口的方法：
+登录阿里云 ECS 控制台 → 安全组 → 配置规则 → 入方向 → 添加规则：
+协议：TCP
+端口：3000/3000
+授权对象：0.0.0.0/0
