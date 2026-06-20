@@ -9,11 +9,11 @@ myfile.txt: OK
 #生成文件
 
 root@2786285f6689:~# apt install git -y
-#下载GitHub
+#下载Git
 
 root@2786285f6689:~# git config --global user.name "licunyuan"
 root@2786285f6689:~# git config --global user.email "licunyuan0@gmail.com"
-#配置GitHub
+#配置Git
 
 root@2786285f6689:~# cd /root/sha256_homework
 root@2786285f6689:~/sha256_homework# git init
